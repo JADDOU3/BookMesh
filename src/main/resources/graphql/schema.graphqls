@@ -1,3 +1,90 @@
+type Query{
+#    =-_-= Book Queries =-_-=
+    listBooks(authorId: ID): [BookResponse!]!
+    getBook(bookId: ID!): BookResponse
+
+#    =-_-= Book Listing Queries =-_-=
+    listListingsForBook(bookId: ID!): [ListingResponse!]!
+    listListingsForSupplier(supplierId: ID!): [ListingResponse!]!
+}
+
+type Mutation{
+#    =-_-= Auth Mutations =-_-=
+    signup(request: SignupInput!): AuthResponse!
+    login(request: LoginInput!): AuthResponse!
+
+#    =-_-= Book Mutations =-_-=
+    createBook(request: BookInput!): BookResponse!
+    updateBook(request: BookInput!): BookResponse!
+    deleteBook(bookId: ID!): Boolean!
+
+#    =-_-= Book Listing Mutations =-_-=
+    createListing(request: ListingInput!): ListingResponse!
+    updateStock(request: ListingInput!): ListingResponse!
+    deleteListing(listingId: ID!): Boolean!
+}
+
+#========-_-_-_-_-========
+# =-_-= Input Types =-_-=
+#========-_-_-_-_-========
+input SignupInput{
+    fullName: String!
+    email: String!
+    password: String!
+    role: Role!
+}
+
+input LoginInput{
+    email: String!
+    password: String!
+}
+
+input BookInput{
+    id: ID
+    title: String!
+    price: Float!
+    description: String
+}
+
+input ListingInput {
+    bookId: ID
+    listingId: ID
+    stockQuantity: Int!
+}
+
+
+# ========-_-_-_-_-========
+#=-_-= response Types =-_-=
+ #========-_-_-_-_-========
+type AuthResponse{
+    token: String!
+    userId: ID!
+    fullName: String!
+    email: String!
+    role: Role!
+}
+
+type BookResponse{
+    id: ID!
+    title: String!
+    description: String
+    price: Float!
+    authorId: ID!
+    authorName: String!
+}
+
+type ListingResponse{
+    id: ID!
+    bookId: ID!
+    bookTitle: String!
+    stockQuantity: Int!
+    supplierId: ID!
+    supplierName: String!
+}
+
+#========-_-_-_-_-========
+# =-_-=   Schemas   =-_-=
+#========-_-_-_-_-========
 
 type User{
     id: ID!
@@ -12,7 +99,6 @@ type Book{
     author: User!
     price: Float!
     description: String
-
 }
 
 type BookListing{
