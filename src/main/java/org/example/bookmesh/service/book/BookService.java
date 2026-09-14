@@ -10,6 +10,7 @@ import org.example.bookmesh.model.Role;
 import org.example.bookmesh.model.User;
 import org.example.bookmesh.repository.book.BookListingRepository;
 import org.example.bookmesh.repository.book.BookRepository;
+import org.example.bookmesh.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +24,8 @@ public class BookService {
     private final BookListingRepository bookListingRepository;
 
     @Transactional
-    public BookResponse createBook(BookRequest request, User author) {
-        requireRole(author, Role.AUTHOR);
+    public BookResponse createBook(BookRequest request) {
+        User author = SecurityUtils.getCurrentUser();
 
         Book book = Book.builder()
                 .title(request.title())
@@ -49,8 +50,9 @@ public class BookService {
     }
 
     @Transactional
-    public BookResponse updateBook(Long bookId, BookRequest request, User requester) {
-        Book book = findBookOrThrow(bookId);
+    public BookResponse updateBook(BookRequest request) {
+        User requester = SecurityUtils.getCurrentUser();
+        Book book = findBookOrThrow(request.id());
         requireOwner(book, requester);
 
         book.setTitle(request.title());
@@ -61,7 +63,8 @@ public class BookService {
     }
 
     @Transactional
-    public void deleteBook(Long bookId, User requester) {
+    public void deleteBook(Long bookId ) {
+        User requester = SecurityUtils.getCurrentUser();
         Book book = findBookOrThrow(bookId);
         requireOwner(book, requester);
         bookListingRepository.deleteAll(bookListingRepository.findByBookId(bookId));

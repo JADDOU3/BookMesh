@@ -1,54 +1,53 @@
 package org.example.bookmesh.controller.book;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.bookmesh.dto.book.BookRequest;
 import org.example.bookmesh.dto.book.BookResponse;
-import org.example.bookmesh.model.User;
 import org.example.bookmesh.service.book.BookService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/books")
+@Controller
 @RequiredArgsConstructor
 public class BookController {
 
     private final BookService bookService;
 
-    @PostMapping
-    public ResponseEntity<BookResponse> createBook(@Valid @RequestBody BookRequest request,
-                                                   @AuthenticationPrincipal User author) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.createBook(request, author));
+    @MutationMapping
+    @PreAuthorize("hasRole('AUTHOR')")
+    public BookResponse createBook(@Argument BookRequest request) {
+        return bookService.createBook(request);
     }
 
-    @GetMapping
-    public ResponseEntity<List<BookResponse>> listBooks(@RequestParam(required = false) Long authorId) {
+    @QueryMapping
+    public List<BookResponse> listBooks(@Argument Long authorId) {
         List<BookResponse> books = authorId != null
                 ? bookService.listBooksByAuthor(authorId)
                 : bookService.listBooks();
-        return ResponseEntity.ok(books);
+        return books;
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<BookResponse> getBook(@PathVariable Long bookId) {
-        return ResponseEntity.ok(bookService.getBook(bookId));
+    @QueryMapping
+    public BookResponse getBook(@Argument Long bookId) {
+        return bookService.getBook(bookId);
     }
 
-    @PutMapping("/{bookId}")
-    public ResponseEntity<BookResponse> updateBook(@PathVariable Long bookId,
-                                                   @Valid @RequestBody BookRequest request,
-                                                   @AuthenticationPrincipal User requester) {
-        return ResponseEntity.ok(bookService.updateBook(bookId, request, requester));
+    @MutationMapping
+    @PreAuthorize("hasRole('AUTHOR')")
+    public BookResponse updateBook(@Argument BookRequest request) {
+        return bookService.updateBook(request);
     }
 
-    @DeleteMapping("/{bookId}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId, @AuthenticationPrincipal User requester) {
-        bookService.deleteBook(bookId, requester);
-        return ResponseEntity.noContent().build();
+    @MutationMapping
+    @PreAuthorize("hasRole('AUTHOR')")
+    public Boolean deleteBook(@Argument Long bookId) {
+        bookService.deleteBook(bookId);
+        return true;
     }
 }
