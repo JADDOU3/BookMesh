@@ -1,0 +1,28 @@
+
+type User{
+    id: ID!
+    fullName: String!
+    email: String!
+    role: Role!
+}
+
+type Book{
+    id: ID!
+    title: String!
+    author: User!
+    price: Float!
+    description: String
+
+}
+
+type BookListing{
+    id: ID!
+    book: Book!
+    stockQuantity: Int!
+    supplier: User!
+}
+
+enum Role{
+    AUTHOR
+    SUPPLIER
+}
