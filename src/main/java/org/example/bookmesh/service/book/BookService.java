@@ -82,11 +82,6 @@ public class BookService {
         }
     }
 
-    private void requireRole(User user, Role role) {
-        if (user.getRole() != role) {
-            throw new ForbiddenOperationException("Only a " + role.name().toLowerCase() + " can perform this action");
-        }
-    }
 
     private BookResponse toResponse(Book book) {
         return new BookResponse(
