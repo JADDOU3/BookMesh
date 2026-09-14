@@ -1,17 +1,17 @@
-package org.example.bookmesh.service;
+package org.example.bookmesh.service.book;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bookmesh.dto.ListingRequest;
-import org.example.bookmesh.dto.ListingResponse;
+import org.example.bookmesh.dto.book.ListingRequest;
+import org.example.bookmesh.dto.book.ListingResponse;
 import org.example.bookmesh.exception.DuplicateListingException;
 import org.example.bookmesh.exception.ForbiddenOperationException;
 import org.example.bookmesh.exception.ResourceNotFoundException;
-import org.example.bookmesh.model.Book;
-import org.example.bookmesh.model.BookListing;
+import org.example.bookmesh.model.book.Book;
+import org.example.bookmesh.model.book.BookListing;
 import org.example.bookmesh.model.Role;
 import org.example.bookmesh.model.User;
-import org.example.bookmesh.repository.BookListingRepository;
-import org.example.bookmesh.repository.BookRepository;
+import org.example.bookmesh.repository.book.BookListingRepository;
+import org.example.bookmesh.repository.book.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

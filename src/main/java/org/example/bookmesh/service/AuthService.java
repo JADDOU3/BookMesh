@@ -1,9 +1,9 @@
 package org.example.bookmesh.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bookmesh.dto.AuthResponse;
-import org.example.bookmesh.dto.LoginRequest;
-import org.example.bookmesh.dto.RegisterRequest;
+import org.example.bookmesh.dto.auth.AuthResponse;
+import org.example.bookmesh.dto.auth.LoginRequest;
+import org.example.bookmesh.dto.auth.RegisterRequest;
 import org.example.bookmesh.exception.EmailAlreadyInUseException;
 import org.example.bookmesh.model.User;
 import org.example.bookmesh.repository.UserRepository;

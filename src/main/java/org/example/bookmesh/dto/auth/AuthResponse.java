@@ -1,4 +1,4 @@
-package org.example.bookmesh.dto;
+package org.example.bookmesh.dto.auth;
 
 import org.example.bookmesh.model.Role;
 

@@ -1,4 +1,4 @@
-package org.example.bookmesh.dto;
+package org.example.bookmesh.dto.book;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

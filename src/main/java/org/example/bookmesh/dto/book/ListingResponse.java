@@ -1,4 +1,4 @@
-package org.example.bookmesh.dto;
+package org.example.bookmesh.dto.book;
 
 public record ListingResponse(
         Long id,

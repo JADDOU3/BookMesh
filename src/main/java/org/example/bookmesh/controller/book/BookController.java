@@ -1,11 +1,11 @@
-package org.example.bookmesh.controller;
+package org.example.bookmesh.controller.book;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.bookmesh.dto.BookRequest;
-import org.example.bookmesh.dto.BookResponse;
+import org.example.bookmesh.dto.book.BookRequest;
+import org.example.bookmesh.dto.book.BookResponse;
 import org.example.bookmesh.model.User;
-import org.example.bookmesh.service.BookService;
+import org.example.bookmesh.service.book.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -1,7 +1,8 @@
-package org.example.bookmesh.model;
+package org.example.bookmesh.model.book;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.bookmesh.model.User;
 
 @Entity
 @Table(

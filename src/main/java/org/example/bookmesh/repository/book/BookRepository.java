@@ -1,6 +1,6 @@
-package org.example.bookmesh.repository;
+package org.example.bookmesh.repository.book;
 
-import org.example.bookmesh.model.Book;
+import org.example.bookmesh.model.book.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

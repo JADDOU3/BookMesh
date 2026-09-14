@@ -2,9 +2,9 @@ package org.example.bookmesh.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.bookmesh.dto.AuthResponse;
-import org.example.bookmesh.dto.LoginRequest;
-import org.example.bookmesh.dto.RegisterRequest;
+import org.example.bookmesh.dto.auth.AuthResponse;
+import org.example.bookmesh.dto.auth.LoginRequest;
+import org.example.bookmesh.dto.auth.RegisterRequest;
 import org.example.bookmesh.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
