@@ -12,6 +12,7 @@ import org.example.bookmesh.model.Role;
 import org.example.bookmesh.model.User;
 import org.example.bookmesh.repository.book.BookListingRepository;
 import org.example.bookmesh.repository.book.BookRepository;
+import org.example.bookmesh.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +26,13 @@ public class BookListingService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public ListingResponse createListing(Long bookId, ListingRequest request, User supplier) {
-        requireRole(supplier, Role.SUPPLIER);
+    public ListingResponse createListing(ListingRequest request) {
+        User supplier = SecurityUtils.getCurrentUser();
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("No book found with id " + bookId));
+        Book book = bookRepository.findById(request.bookId())
+                .orElseThrow(() -> new ResourceNotFoundException("No book found with id " + request.bookId()));
 
-        if (bookListingRepository.existsByBookIdAndSupplierId(bookId, supplier.getId())) {
+        if (bookListingRepository.existsByBookIdAndSupplierId(request.bookId(), supplier.getId())) {
             throw new DuplicateListingException("You already have a listing for this book");
         }
 
@@ -53,8 +54,9 @@ public class BookListingService {
     }
 
     @Transactional
-    public ListingResponse updateStock(Long listingId, ListingRequest request, User requester) {
-        BookListing listing = findListingOrThrow(listingId);
+    public ListingResponse updateStock(ListingRequest request) {
+        BookListing listing = findListingOrThrow(request.listingId());
+        User requester =  SecurityUtils.getCurrentUser();
         requireOwner(listing, requester);
 
         listing.setStockQuantity(request.stockQuantity());
@@ -62,7 +64,8 @@ public class BookListingService {
     }
 
     @Transactional
-    public void deleteListing(Long listingId, User requester) {
+    public void deleteListing(Long listingId) {
+        User requester =  SecurityUtils.getCurrentUser();
         BookListing listing = findListingOrThrow(listingId);
         requireOwner(listing, requester);
         bookListingRepository.delete(listing);
@@ -79,11 +82,6 @@ public class BookListingService {
         }
     }
 
-    private void requireRole(User user, Role role) {
-        if (user.getRole() != role) {
-            throw new ForbiddenOperationException("Only a " + role.name().toLowerCase() + " can perform this action");
-        }
-    }
 
     private ListingResponse toResponse(BookListing listing) {
         return new ListingResponse(

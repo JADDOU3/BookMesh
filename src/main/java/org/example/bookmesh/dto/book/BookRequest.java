@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 public record BookRequest(
 
+        Long id,
+
         @NotBlank(message = "Title is required")
         String title,
 
