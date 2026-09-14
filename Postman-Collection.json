@@ -1,0 +1,695 @@
+{
+  "info": {
+    "_postman_id": "8f3c1a52-4d21-4b9e-9c77-0a1e6b2f9d10",
+    "name": "Bookstore GraphQL API",
+    "description": "Full coverage of the Bookstore GraphQL schema: auth, books, and book listings.\n\n## Setup\n1. Set the `baseUrl` collection variable (default `http://localhost:8080/graphql`).\n2. Run **Signup - Author** then **Signup - Supplier** (or the two Login requests) once. Their scripts store `authorToken` / `supplierToken` and the matching user ids automatically.\n3. Book requests send `authorToken`, Listing requests send `supplierToken` (set at folder level).\n4. `createBook` stores `bookId`, `createListing` stores `listingId`, so the rest of the requests chain without manual copy-paste.\n\nThe collection can be run end-to-end with the Collection Runner in the order the requests appear.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Shared assertions applied to every request in the collection.",
+          "pm.test('HTTP 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('No GraphQL errors', function () {",
+          "    var body = pm.response.json();",
+          "    if (body.errors) {",
+          "        console.log('GraphQL errors:', JSON.stringify(body.errors, null, 2));",
+          "    }",
+          "    pm.expect(body.errors, JSON.stringify(body.errors)).to.be.undefined;",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/graphql",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authorToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "supplierToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "supplierId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authorEmail",
+      "value": "author@example.com",
+      "type": "string"
+    },
+    {
+      "key": "supplierEmail",
+      "value": "supplier@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Password123!",
+      "type": "string"
+    },
+    {
+      "key": "bookId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "listingId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Signup and login for both roles. Tokens are stored per role so the rest of the collection can pick the right one.",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Signup - Author",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.signup) {",
+                  "    pm.collectionVariables.set('authorToken', data.signup.token);",
+                  "    pm.collectionVariables.set('authorId', data.signup.userId);",
+                  "    pm.collectionVariables.set('token', data.signup.token);",
+                  "    pm.test('Role is AUTHOR', function () {",
+                  "        pm.expect(data.signup.role).to.eql('AUTHOR');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Signup($request: SignupInput!) {\n  signup(request: $request) {\n    token\n    userId\n    fullName\n    email\n    role\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"fullName\": \"Aya Author\",\n    \"email\": \"{{authorEmail}}\",\n    \"password\": \"{{password}}\",\n    \"role\": \"AUTHOR\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Creates an AUTHOR account. Stores `authorToken` and `authorId`."
+          },
+          "response": []
+        },
+        {
+          "name": "Signup - Supplier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.signup) {",
+                  "    pm.collectionVariables.set('supplierToken', data.signup.token);",
+                  "    pm.collectionVariables.set('supplierId', data.signup.userId);",
+                  "    pm.collectionVariables.set('token', data.signup.token);",
+                  "    pm.test('Role is SUPPLIER', function () {",
+                  "        pm.expect(data.signup.role).to.eql('SUPPLIER');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Signup($request: SignupInput!) {\n  signup(request: $request) {\n    token\n    userId\n    fullName\n    email\n    role\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"fullName\": \"Sami Supplier\",\n    \"email\": \"{{supplierEmail}}\",\n    \"password\": \"{{password}}\",\n    \"role\": \"SUPPLIER\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Creates a SUPPLIER account. Stores `supplierToken` and `supplierId`."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Author",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.login) {",
+                  "    pm.collectionVariables.set('token', data.login.token);",
+                  "    if (data.login.role === 'AUTHOR') {",
+                  "        pm.collectionVariables.set('authorToken', data.login.token);",
+                  "        pm.collectionVariables.set('authorId', data.login.userId);",
+                  "    } else {",
+                  "        pm.collectionVariables.set('supplierToken', data.login.token);",
+                  "        pm.collectionVariables.set('supplierId', data.login.userId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Login($request: LoginInput!) {\n  login(request: $request) {\n    token\n    userId\n    fullName\n    email\n    role\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"email\": \"{{authorEmail}}\",\n    \"password\": \"{{password}}\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Logs in and routes the token to `authorToken` or `supplierToken` based on the returned role."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Supplier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.login) {",
+                  "    pm.collectionVariables.set('token', data.login.token);",
+                  "    if (data.login.role === 'SUPPLIER') {",
+                  "        pm.collectionVariables.set('supplierToken', data.login.token);",
+                  "        pm.collectionVariables.set('supplierId', data.login.userId);",
+                  "    } else {",
+                  "        pm.collectionVariables.set('authorToken', data.login.token);",
+                  "        pm.collectionVariables.set('authorId', data.login.userId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Login($request: LoginInput!) {\n  login(request: $request) {\n    token\n    userId\n    fullName\n    email\n    role\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"email\": \"{{supplierEmail}}\",\n    \"password\": \"{{password}}\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Logs in and routes the token to `supplierToken` or `authorToken` based on the returned role."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "description": "Book queries and mutations. Sends `authorToken` by default since book writes belong to the AUTHOR role.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{authorToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "createBook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.createBook) {",
+                  "    pm.collectionVariables.set('bookId', data.createBook.id);",
+                  "    if (!pm.collectionVariables.get('authorId')) {",
+                  "        pm.collectionVariables.set('authorId', data.createBook.authorId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation CreateBook($request: BookInput!) {\n  createBook(request: $request) {\n    id\n    title\n    description\n    price\n    authorId\n    authorName\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"title\": \"The Pragmatic Backend\",\n    \"price\": 29.99,\n    \"description\": \"A hands-on guide to building GraphQL services.\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "`id` is omitted on create. Stores the returned id in `bookId`."
+          },
+          "response": []
+        },
+        {
+          "name": "updateBook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation UpdateBook($request: BookInput!) {\n  updateBook(request: $request) {\n    id\n    title\n    description\n    price\n    authorId\n    authorName\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"id\": \"{{bookId}}\",\n    \"title\": \"The Pragmatic Backend, 2nd Edition\",\n    \"price\": 34.50,\n    \"description\": \"Revised edition with a chapter on schema design.\"\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Same `BookInput`, but `id` is required here for the server to know which book to update."
+          },
+          "response": []
+        },
+        {
+          "name": "listBooks - all",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ListBooks {\n  listBooks {\n    id\n    title\n    description\n    price\n    authorId\n    authorName\n  }\n}",
+                "variables": "{}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "`authorId` omitted, so every book is returned."
+          },
+          "response": []
+        },
+        {
+          "name": "listBooks - by author",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ListBooksByAuthor($authorId: ID) {\n  listBooks(authorId: $authorId) {\n    id\n    title\n    description\n    price\n    authorId\n    authorName\n  }\n}",
+                "variables": "{\n  \"authorId\": \"{{authorId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Filters by the author stored during signup/login."
+          },
+          "response": []
+        },
+        {
+          "name": "getBook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query GetBook($bookId: ID!) {\n  getBook(bookId: $bookId) {\n    id\n    title\n    description\n    price\n    authorId\n    authorName\n  }\n}",
+                "variables": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Returns null when the id does not exist, since `getBook` is nullable."
+          },
+          "response": []
+        },
+        {
+          "name": "deleteBook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation DeleteBook($bookId: ID!) {\n  deleteBook(bookId: $bookId)\n}",
+                "variables": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Destructive. Run this last if you are executing the whole collection, otherwise the listing requests lose their book."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Book Listings",
+      "description": "Listing queries and mutations. Sends `supplierToken` by default since listings belong to the SUPPLIER role.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{supplierToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "createListing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json().data;",
+                  "if (data && data.createListing) {",
+                  "    pm.collectionVariables.set('listingId', data.createListing.id);",
+                  "    if (!pm.collectionVariables.get('supplierId')) {",
+                  "        pm.collectionVariables.set('supplierId', data.createListing.supplierId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation CreateListing($request: ListingInput!) {\n  createListing(request: $request) {\n    id\n    bookId\n    bookTitle\n    stockQuantity\n    supplierId\n    supplierName\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"bookId\": \"{{bookId}}\",\n    \"stockQuantity\": 25\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "On create, send `bookId` and leave `listingId` out. Stores the returned id in `listingId`."
+          },
+          "response": []
+        },
+        {
+          "name": "updateStock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation UpdateStock($request: ListingInput!) {\n  updateStock(request: $request) {\n    id\n    bookId\n    bookTitle\n    stockQuantity\n    supplierId\n    supplierName\n  }\n}",
+                "variables": "{\n  \"request\": {\n    \"listingId\": \"{{listingId}}\",\n    \"stockQuantity\": 12\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "On update, send `listingId` and leave `bookId` out."
+          },
+          "response": []
+        },
+        {
+          "name": "listListingsForBook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ListListingsForBook($bookId: ID!) {\n  listListingsForBook(bookId: $bookId) {\n    id\n    bookId\n    bookTitle\n    stockQuantity\n    supplierId\n    supplierName\n  }\n}",
+                "variables": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Every supplier currently stocking the given book."
+          },
+          "response": []
+        },
+        {
+          "name": "listListingsForSupplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ListListingsForSupplier($supplierId: ID!) {\n  listListingsForSupplier(supplierId: $supplierId) {\n    id\n    bookId\n    bookTitle\n    stockQuantity\n    supplierId\n    supplierName\n  }\n}",
+                "variables": "{\n  \"supplierId\": \"{{supplierId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Everything the stored supplier has listed."
+          },
+          "response": []
+        },
+        {
+          "name": "deleteListing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation DeleteListing($listingId: ID!) {\n  deleteListing(listingId: $listingId)\n}",
+                "variables": "{\n  \"listingId\": \"{{listingId}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Destructive. Returns a boolean."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Introspection",
+      "description": "Handy when you want Postman's GraphQL autocomplete without attaching a schema file.",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Schema types",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query Introspect {\n  __schema {\n    queryType { name }\n    mutationType { name }\n    types {\n      name\n      kind\n      fields {\n        name\n        type { name kind ofType { name kind } }\n      }\n    }\n  }\n}",
+                "variables": "{}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Fails if introspection is disabled in production config."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
