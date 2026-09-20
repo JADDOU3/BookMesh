@@ -11,6 +11,9 @@ import org.example.bookmesh.model.User;
 import org.example.bookmesh.repository.book.BookListingRepository;
 import org.example.bookmesh.repository.book.BookRepository;
 import org.example.bookmesh.util.SecurityUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,10 @@ public class BookService {
     private final BookListingRepository bookListingRepository;
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "bookList", allEntries = true),
+            @CacheEvict(value = "bookListByAuthor", allEntries = true)
+    })
     public BookResponse createBook(BookRequest request) {
         User author = SecurityUtils.getCurrentUser();
 
@@ -37,19 +44,31 @@ public class BookService {
         return toResponse(bookRepository.save(book));
     }
 
+    @Cacheable(value = "books", key="#bookId")
     public BookResponse getBook(Long bookId) {
         return toResponse(findBookOrThrow(bookId));
     }
 
+
+    @Cacheable(value = "bookList")
     public List<BookResponse> listBooks() {
         return bookRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+
+    @Cacheable(value = "bookListByAuthor", key="#authorId")
     public List<BookResponse> listBooksByAuthor(Long authorId) {
         return bookRepository.findByAuthorId(authorId).stream().map(this::toResponse).toList();
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "bookList", allEntries = true),
+            @CacheEvict(value = "books", key = "#request.id"),
+            @CacheEvict(value = "bookListByAuthor", allEntries = true),
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
+    })
     public BookResponse updateBook(BookRequest request) {
         User requester = SecurityUtils.getCurrentUser();
         Book book = findBookOrThrow(request.id());
@@ -63,6 +82,13 @@ public class BookService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "bookList", allEntries = true),
+            @CacheEvict(value = "books", key = "#bookId"),
+            @CacheEvict(value = "bookListByAuthor", allEntries = true),
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
+    })
     public void deleteBook(Long bookId ) {
         User requester = SecurityUtils.getCurrentUser();
         Book book = findBookOrThrow(bookId);
