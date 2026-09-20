@@ -44,6 +44,7 @@ public class RedisConfig {
                 .withCacheConfiguration("listings", withType(base, mapper, listingType))
                 .withCacheConfiguration("listingList", withType(base, mapper, listingListType))
                 .withCacheConfiguration("bookListByAuthor", withType(base, mapper, bookListType))
+                .withCacheConfiguration("listingListBySupplier", withType(base, mapper, listingListType))
                 .build();
     }
 

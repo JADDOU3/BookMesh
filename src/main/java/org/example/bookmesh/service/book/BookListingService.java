@@ -13,6 +13,9 @@ import org.example.bookmesh.model.User;
 import org.example.bookmesh.repository.book.BookListingRepository;
 import org.example.bookmesh.repository.book.BookRepository;
 import org.example.bookmesh.util.SecurityUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,10 @@ public class BookListingService {
     private final BookRepository bookRepository;
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
+    })
     public ListingResponse createListing(ListingRequest request) {
         User supplier = SecurityUtils.getCurrentUser();
 
@@ -45,15 +52,21 @@ public class BookListingService {
         return toResponse(bookListingRepository.save(listing));
     }
 
+    @Cacheable(value = "listingList", key="#bookId")
     public List<ListingResponse> listListingsForBook(Long bookId) {
         return bookListingRepository.findByBookId(bookId).stream().map(this::toResponse).toList();
     }
 
+    @Cacheable(value = "listingListBySupplier", key="#supplierId")
     public List<ListingResponse> listListingsForSupplier(Long supplierId) {
         return bookListingRepository.findBySupplierId(supplierId).stream().map(this::toResponse).toList();
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
+    })
     public ListingResponse updateStock(ListingRequest request) {
         BookListing listing = findListingOrThrow(request.listingId());
         User requester =  SecurityUtils.getCurrentUser();
@@ -64,6 +77,10 @@ public class BookListingService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
+    })
     public void deleteListing(Long listingId) {
         User requester =  SecurityUtils.getCurrentUser();
         BookListing listing = findListingOrThrow(listingId);

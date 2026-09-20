@@ -63,9 +63,11 @@ public class BookService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "bookList" , allEntries = true),
-            @CacheEvict(value = "books" , key = "#request.id"),
-            @CacheEvict(value = "bookListByAuthor", allEntries = true)
+            @CacheEvict(value = "bookList", allEntries = true),
+            @CacheEvict(value = "books", key = "#request.id"),
+            @CacheEvict(value = "bookListByAuthor", allEntries = true),
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
     })
     public BookResponse updateBook(BookRequest request) {
         User requester = SecurityUtils.getCurrentUser();
@@ -83,7 +85,9 @@ public class BookService {
     @Caching(evict = {
             @CacheEvict(value = "bookList", allEntries = true),
             @CacheEvict(value = "books", key = "#bookId"),
-            @CacheEvict(value = "bookListByAuthor", allEntries = true)
+            @CacheEvict(value = "bookListByAuthor", allEntries = true),
+            @CacheEvict(value = "listingList", allEntries = true),
+            @CacheEvict(value = "listingListBySupplier", allEntries = true)
     })
     public void deleteBook(Long bookId ) {
         User requester = SecurityUtils.getCurrentUser();
